@@ -1,6 +1,6 @@
 import * as duckdb from "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.5.2/+esm";
 
-const DATA_URL = "./data/abortions_long.parquet";
+const DATA_URL = "./abortions_long.parquet";
 const SERVICE_VALUE = 9999999;
 
 const elements = {
