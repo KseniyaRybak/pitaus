@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Дашборд по данным об абортах</title>
+  <meta name="description" content="Интерактивный дашборд на GitHub Pages: Parquet + DuckDB-Wasm + Plotly.js" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="preconnect" href="https://cdn.plot.ly" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="https://cdn.plot.ly/plotly-3.4.0.min.js" charset="utf-8"></script>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">GitHub Pages dashboard</p>
+        <h1>Динамика и структура показателей</h1>
+        <p class="hero-copy">
+          Данные загружаются из Parquet-файла и анализируются прямо в браузере через DuckDB-Wasm.
+          Серверная часть не требуется.
+        </p>
+      </div>
+      <div class="status-card">
+        <span class="status-dot" id="statusDot"></span>
+        <div>
+          <strong id="statusTitle">Загрузка данных</strong>
+          <p id="statusText">Подключаю аналитическое ядро и читаю Parquet.</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="panel filters-panel">
+        <div class="panel-heading">
+          <h2>Фильтры</h2>
+          <button id="resetFilters" class="ghost-button" type="button">Сбросить</button>
+        </div>
+
+        <label class="field">
+          <span>Показатель</span>
+          <select id="indicatorFilter"></select>
+        </label>
+
+        <label class="field">
+          <span>Территория</span>
+          <select id="objectFilter"></select>
+        </label>
+
+        <label class="field">
+          <span>Тип организации</span>
+          <select id="organizationFilter"></select>
+        </label>
+
+        <label class="field">
+          <span>Группа</span>
+          <select id="groupFilter"></select>
+        </label>
+
+        <label class="field">
+          <span>Возраст</span>
+          <select id="ageFilter"></select>
+        </label>
+
+        <label class="field">
+          <span>Срок беременности</span>
+          <select id="durationFilter"></select>
+        </label>
+
+        <label class="checkbox-row">
+          <input type="checkbox" id="showServiceValues" />
+          <span>Показывать значения 9 999 999</span>
+        </label>
+
+        <div class="note-card">
+          <strong>Как читать графики</strong>
+          <p>
+            По умолчанию используются агрегированные категории «Всего», чтобы не смешивать пересекающиеся разрезы.
+          </p>
+        </div>
+      </aside>
+
+      <section class="dashboard">
+        <section class="kpi-grid">
+          <article class="kpi-card">
+            <span>Последнее значение</span>
+            <strong id="latestValue">-</strong>
+            <small id="latestYear">-</small>
+          </article>
+          <article class="kpi-card">
+            <span>Изменение к предыдущему году</span>
+            <strong id="yearChange">-</strong>
+            <small id="yearChangeCaption">-</small>
+          </article>
+          <article class="kpi-card">
+            <span>Позиция территории</span>
+            <strong id="regionRank">-</strong>
+            <small id="regionRankCaption">-</small>
+          </article>
+          <article class="kpi-card">
+            <span>Точек в временном ряду</span>
+            <strong id="pointsCount">-</strong>
+            <small>лет с данными</small>
+          </article>
+        </section>
+
+        <section class="chart-grid">
+          <article class="panel chart-card wide">
+            <div class="chart-heading">
+              <div>
+                <h2>Динамика во времени</h2>
+                <p id="trendCaption">-</p>
+              </div>
+            </div>
+            <div id="trendChart" class="chart"></div>
+          </article>
+
+          <article class="panel chart-card">
+            <div class="chart-heading">
+              <div>
+                <h2>Топ территорий</h2>
+                <p id="regionsCaption">-</p>
+              </div>
+            </div>
+            <div id="regionsChart" class="chart"></div>
+          </article>
+
+          <article class="panel chart-card">
+            <div class="chart-heading">
+              <div>
+                <h2>Разбивка по возрасту</h2>
+                <p id="ageCaption">-</p>
+              </div>
+            </div>
+            <div id="ageChart" class="chart"></div>
+          </article>
+        </section>
+
+        <section class="panel data-table-panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Последние наблюдения</h2>
+              <p>Фрагмент таблицы после применения фильтров.</p>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Год</th>
+                  <th>Значение</th>
+                  <th>Источник</th>
+                  <th>Комментарий</th>
+                </tr>
+              </thead>
+              <tbody id="previewTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <template id="emptyStateTemplate">
+    <div class="empty-state">Нет данных для выбранной комбинации фильтров.</div>
+  </template>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
